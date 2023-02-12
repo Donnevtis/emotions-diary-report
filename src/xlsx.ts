@@ -41,7 +41,7 @@ const getXLSX = (data: UserState[], language = 'en') => {
       },
     ])
 
-    mergedCells.push(XLSX.utils.decode_range(`A${countCells}:B${countCells}`))
+    mergedCells.push(XLSX.utils.decode_range(`A${countCells}:C${countCells}`))
 
     states.forEach(({ timestamp, emotion, energy, timezone }) => {
       maxEmotionWidth = Math.max(emotion.length, maxEmotionWidth)
@@ -49,7 +49,9 @@ const getXLSX = (data: UserState[], language = 'en') => {
       rows.push([
         {
           v: dayjs(timestamp)
-            .minute(dayjs().tz(timezone).utcOffset())
+            .minute(
+              dayjs(timestamp).minute() + dayjs().tz(timezone).utcOffset(),
+            )
             .valueOf(),
           t: 'd',
           z: language === 'en' ? 'hh:mm:ss AM/PM' : 'hh:mm:ss',
