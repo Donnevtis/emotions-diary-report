@@ -8,8 +8,8 @@ export type FunctionConfig = {
   executionTimeout: {
     seconds: number
   }
-  environment: Record<string, string>
-  serviceAccountId: string
+  environment?: Record<string, string>
+  serviceAccountId?: string
   secrets?: {
     id: string
     versionId: string

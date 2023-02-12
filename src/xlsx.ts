@@ -1,21 +1,29 @@
 import XLSX from 'xlsx'
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
+import 'dayjs/locale/ru'
 
 import { Rows, UserState } from './types'
 import { i18n } from './i18n'
 
+dayjs.extend(utc)
+dayjs.extend(timezone)
+dayjs.extend(localizedFormat)
+
 const divideByDays = (stack: UserState[]) =>
   stack.reduce((prev: Record<string, UserState[]>, cur) => {
-    const day = dayjs(cur.timestamp).format('YYYY-MM-DD')
+    const day = dayjs(cur.timestamp).tz(cur.timezone).format('YYYY-MM-DD')
     prev[day] ??= []
     prev[day].push(cur)
 
     return prev
   }, {})
 
-const getXLSX = (data: UserState[], language?: string) => {
+const getXLSX = (data: UserState[], language = 'en') => {
   const t = i18n(language)
-
+  dayjs.locale(language)
   const rows: Rows = [
     [t('time') as string, t('emotion') as string, t('energy') as string],
   ]
@@ -33,14 +41,16 @@ const getXLSX = (data: UserState[], language?: string) => {
       },
     ])
 
-    mergedCells.push(XLSX.utils.decode_range(`A${countCells}:C${countCells}`))
+    mergedCells.push(XLSX.utils.decode_range(`A${countCells}:B${countCells}`))
 
-    states.forEach(({ timestamp, emotion, energy }) => {
+    states.forEach(({ timestamp, emotion, energy, timezone }) => {
       maxEmotionWidth = Math.max(emotion.length, maxEmotionWidth)
 
       rows.push([
         {
-          v: timestamp,
+          v: dayjs(timestamp)
+            .minute(dayjs().tz(timezone).utcOffset())
+            .valueOf(),
           t: 'd',
           z: language === 'en' ? 'hh:mm:ss AM/PM' : 'hh:mm:ss',
           cellNF: true,
@@ -65,7 +75,13 @@ const getXLSX = (data: UserState[], language?: string) => {
 
   XLSX.utils.book_append_sheet(workbook, worksheet, t('list') as string)
 
-  return XLSX.write(workbook, { type: 'base64', bookType: 'xlsx' })
+  return {
+    source: XLSX.write(workbook, {
+      type: 'buffer',
+      bookType: 'xlsx',
+    }) as Buffer,
+    filename: `${t('report')}_${dayjs().format('ll')}.xlsx`,
+  }
 }
 
 export default getXLSX

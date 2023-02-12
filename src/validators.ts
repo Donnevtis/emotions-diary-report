@@ -8,7 +8,8 @@ const stateSchema: JSONSchemaType<UserState> = {
   properties: {
     emotion: { type: 'string' },
     energy: { type: 'number' },
-    timestamp: { type: 'string' },
+    timestamp: { type: 'number' },
+    timezone: { type: 'string' },
   },
   required: ['emotion', 'timestamp', 'energy'],
 }

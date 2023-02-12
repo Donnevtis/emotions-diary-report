@@ -19,6 +19,9 @@ type RequestContext = {
     authorizer?: {
       userId?: number
     }
+    apiGateway?: {
+      operationContext?: { user_id?: string }
+    }
   }
 }
 

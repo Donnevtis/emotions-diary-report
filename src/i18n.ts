@@ -13,6 +13,7 @@ export const i18n = (lng?: string) => {
           energy: 'Energy',
           list: 'Diary',
           title: 'Emotion diary report',
+          report: 'Report',
         },
       },
       ru: {
@@ -22,6 +23,7 @@ export const i18n = (lng?: string) => {
           energy: 'Энергия',
           list: 'Дневник',
           title: 'Отчёт дневника эмоций',
+          report: 'Отчёт',
         },
       },
     },
